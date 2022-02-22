@@ -1,16 +1,16 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 
 _get_mas_installed() {
-    ids=$( mas list | sed 's/\ .*//' )
+    ids=$( mas list | sed 's/\ .*//' || true )
 }
 
 _get_mas_outdated() {
-    ids=$( mas outdated 2>&1 | grep -v ^Warning)
+    ids=$( mas outdated 2>&1 | grep -v ^Warning || true )
 }
 
 _mas() {
 
-    local cur prev opts
+    local cur prev commands
 
     COMPREPLY=()
 
@@ -20,46 +20,55 @@ _mas() {
     commands="account help home info install list lucky open outdated purchase reset search signin signout uninstall upgrade vendor version "
 
     if [[ ${COMP_CWORD} -eq 1 ]]; then
- 		COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
+        # shellcheck disable=SC2207
+ 		COMPREPLY=( $(compgen -W "${commands}" -- "${cur}") )
         return 0
     fi
 
     # options with arguments
     case "${prev}" in
         help)
-            COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
+            # shellcheck disable=SC2207
+            COMPREPLY=( $(compgen -W "${commands}" -- "${cur}") )
             ;;
         install|lucky)
-            if [[  ${cur} == -* ]]; then
- 		        COMPREPLY=( $(compgen -W "--force" -- ${cur}) )
+            if [[  "${cur}" == -* ]]; then
+                # shellcheck disable=SC2207
+ 		        COMPREPLY=( $(compgen -W "--force" -- "${cur}") )
             fi
             ;;
         reset)
-            if [[  ${cur} == -* ]]; then
- 		        COMPREPLY=( $(compgen -W "--debug" -- ${cur}) )
+            if [[  "${cur}" == -* ]]; then
+                # shellcheck disable=SC2207
+ 		        COMPREPLY=( $(compgen -W "--debug" -- "${cur}") )
             fi
             ;;
         search)
-            if [[  ${cur} == -* ]]; then
- 		        COMPREPLY=( $(compgen -W "--price" -- ${cur}) )
+            if [[  "${cur}" == -* ]]; then
+                # shellcheck disable=SC2207
+ 		        COMPREPLY=( $(compgen -W "--price" -- "${cur}") )
             fi
             ;;
         signin)
-            if [[  ${cur} == -* ]]; then
- 		        COMPREPLY=( $(compgen -W "--dialog" -- ${cur}) )
+            if [[  "${cur}" == -* ]]; then
+                # shellcheck disable=SC2207
+ 		        COMPREPLY=( $(compgen -W "--dialog" -- "${cur}") )
             fi
             ;;
         uninstall|--dry-run)
-            if [[  ${cur} == -* ]]; then
-                COMPREPLY=( $(compgen -W "--dry-run" -- ${cur}) )
+            if [[  "${cur}" == -* ]]; then
+                # shellcheck disable=SC2207
+                COMPREPLY=( $(compgen -W "--dry-run" -- "${cur}") )
             else
                 _get_mas_installed
-                COMPREPLY=( $(compgen -W "${ids}" -- ${cur}) )
+                # shellcheck disable=SC2207
+                COMPREPLY=( $(compgen -W "${ids}" -- "${cur}") )
             fi
             ;;
         upgrade)
             _get_mas_outdated
-            COMPREPLY=( $(compgen -W "${ids}" -- ${cur}) )
+            # shellcheck disable=SC2207
+            COMPREPLY=( $(compgen -W "${ids}" -- "${cur}") )
             ;;
         *)
             ;;
