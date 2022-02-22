@@ -1,7 +1,11 @@
 #/usr/bin/env bash
 
-_get_installed() {
+_get_mas_installed() {
     ids=$( mas list | sed 's/\ .*//' )
+}
+
+_get_mas_outdated() {
+    ids=$( mas outdated 2>&1 | grep -v ^Warning)
 }
 
 _mas() {
@@ -14,20 +18,51 @@ _mas() {
 	prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     commands="account help home info install list lucky open outdated purchase reset search signin signout uninstall upgrade vendor version "
-    
-    if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]]; then
+
+    if [[ ${COMP_CWORD} -eq 1 ]]; then
  		COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
         return 0
     fi
 
     # options with arguments
     case "${prev}" in
-        uninstall)
-            _get_installed
+        help)
+            COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
+            ;;
+        install|lucky)
+            if [[  ${cur} == -* ]]; then
+ 		        COMPREPLY=( $(compgen -W "--force" -- ${cur}) )
+            fi
+            ;;
+        reset)
+            if [[  ${cur} == -* ]]; then
+ 		        COMPREPLY=( $(compgen -W "--debug" -- ${cur}) )
+            fi
+            ;;
+        search)
+            if [[  ${cur} == -* ]]; then
+ 		        COMPREPLY=( $(compgen -W "--price" -- ${cur}) )
+            fi
+            ;;
+        signin)
+            if [[  ${cur} == -* ]]; then
+ 		        COMPREPLY=( $(compgen -W "--dialog" -- ${cur}) )
+            fi
+            ;;
+        uninstall|--dry-run)
+            if [[  ${cur} == -* ]]; then
+                COMPREPLY=( $(compgen -W "--dry-run" -- ${cur}) )
+            else
+                _get_mas_installed
+                COMPREPLY=( $(compgen -W "${ids}" -- ${cur}) )
+            fi
+            ;;
+        upgrade)
+            _get_mas_outdated
             COMPREPLY=( $(compgen -W "${ids}" -- ${cur}) )
-        ;;
+            ;;
         *)
-        ;;
+            ;;
     esac
 
 }
