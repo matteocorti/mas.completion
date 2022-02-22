@@ -1,0 +1,35 @@
+#/usr/bin/env bash
+
+_get_installed() {
+    ids=$( mas list | sed 's/\ .*//' )
+}
+
+_mas() {
+
+    local cur prev opts
+
+    COMPREPLY=()
+
+ 	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    commands="account help home info install list lucky open outdated purchase reset search signin signout uninstall upgrade vendor version "
+    
+    if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]]; then
+ 		COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
+        return 0
+    fi
+
+    # options with arguments
+    case "${prev}" in
+        uninstall)
+            _get_installed
+            COMPREPLY=( $(compgen -W "${ids}" -- ${cur}) )
+        ;;
+        *)
+        ;;
+    esac
+
+}
+
+complete -F _mas mas
